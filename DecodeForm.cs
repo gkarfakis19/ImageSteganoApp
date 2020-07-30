@@ -10,16 +10,11 @@ using System.Windows.Forms;
 
 namespace ImageSteganoApp
 {
-    public partial class Form1 : Form
+    public partial class DecodeForm : Form
     {
-        public Form1()
+        public DecodeForm()
         {
             InitializeComponent();
-        }
-
-        private void Form1_Load(object sender, EventArgs e)
-        {
-
         }
     }
 }
