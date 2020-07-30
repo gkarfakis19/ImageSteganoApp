@@ -3,10 +3,14 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Drawing;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Web;
 using System.Windows.Forms;
+using RestSharp;
+using RestSharp.Authenticators;
 
 namespace ImageSteganoApp
 {
@@ -15,18 +19,35 @@ namespace ImageSteganoApp
         string message = "";
         string key = "";
         bool terminator = false;
+        RestClient client = new RestClient("http://127.0.0.1:5000/");
 
-        private string Message_Encode(string _mess, string _key, bool _term) { 
-            string API_message = _mess + "\u0000" + "\u0000" + "\u0000" + _key + "\u0000" + "\u0000" + "\u0000";
+        private void Message_Encode(string _mess, string _key, bool _term) {
+            string terminate;
             if (_term)
             {
-                API_message += "111";
+                terminate = "true";
             }
             else
             {
-                API_message += "000";
+                terminate = "false";
             }
-            return API_message;
+            RestRequest request = new RestRequest("api/encode");
+            request.AddQueryParameter("message", _mess);
+            request.AddQueryParameter("key", _key);
+            request.AddQueryParameter("terminator", terminate);
+
+            var tempFile = Path.GetTempFileName();
+            using var writer = File.OpenWrite(tempFile);
+
+            request.ResponseWriter = responseStream =>
+            {
+                using (responseStream)
+                {
+                    responseStream.CopyTo(writer);
+                }
+            };
+            var response=client.DownloadData(request);
+            
         }
         public EncodeForm()
         {
@@ -72,7 +93,7 @@ namespace ImageSteganoApp
 
         private void button2_Click(object sender, EventArgs e) //submit
         {
-            Message_Encode(message, key, terminator); // todo
+            Message_Encode(message, key, terminator);
         }
     }
 }
