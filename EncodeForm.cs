@@ -8,9 +8,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Web;
+using System.Web.UI.HtmlControls;
 using System.Windows.Forms;
 using RestSharp;
-using RestSharp.Authenticators;
 
 namespace ImageSteganoApp
 {
@@ -19,7 +19,7 @@ namespace ImageSteganoApp
         string message = "";
         string key = "";
         bool terminator = false;
-        RestClient client = new RestClient("http://127.0.0.1:5000/");
+        RestClient client = new RestClient("https://gkwebsite.herokuapp.com/");
 
         private void Message_Encode(string _mess, string _key, bool _term) {
             string terminate;
@@ -36,8 +36,8 @@ namespace ImageSteganoApp
             request.AddQueryParameter("key", _key);
             request.AddQueryParameter("terminator", terminate);
 
-            var tempFile = Path.GetTempFileName();
-            using var writer = File.OpenWrite(tempFile);
+            string filePath="encodedimage.png";
+            var writer = File.OpenWrite(filePath);
 
             request.ResponseWriter = responseStream =>
             {
@@ -46,7 +46,8 @@ namespace ImageSteganoApp
                     responseStream.CopyTo(writer);
                 }
             };
-            var response=client.DownloadData(request);
+            var response=client.Post(request);
+            writer.Close();
             
         }
         public EncodeForm()
@@ -94,6 +95,19 @@ namespace ImageSteganoApp
         private void button2_Click(object sender, EventArgs e) //submit
         {
             Message_Encode(message, key, terminator);
+        }
+
+        private void EncodeForm_Load(object sender, EventArgs e)
+        {
+
+        }
+
+        private void button3_Click(object sender, EventArgs e)
+        {
+            MainForm mForm = new MainForm();
+            this.Hide();
+            mForm.ShowDialog();
+            this.Close();
         }
     }
 }
