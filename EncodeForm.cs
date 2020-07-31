@@ -19,6 +19,8 @@ namespace ImageSteganoApp
         string message = "";
         string key = "";
         bool terminator = false;
+        bool image_given = false;
+        string image_name = "";
         RestClient client = new RestClient("https://gkwebsite.herokuapp.com/");
 
         private void Message_Encode(string _mess, string _key, bool _term) {
@@ -35,6 +37,10 @@ namespace ImageSteganoApp
             request.AddQueryParameter("message", _mess);
             request.AddQueryParameter("key", _key);
             request.AddQueryParameter("terminator", terminate);
+            if (image_given)
+            {
+                request.AddFile("photo_upload", image_name);
+            }
 
             string filePath="encodedimage.png";
             var writer = File.OpenWrite(filePath);
@@ -83,7 +89,9 @@ namespace ImageSteganoApp
         {
             if (openFileDialog1.ShowDialog() == DialogResult.OK)
             {
-
+                image_name = openFileDialog1.FileName;
+                Console.WriteLine(image_name);
+                image_given = true;
             }
         }
 
